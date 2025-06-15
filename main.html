@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hanzi Kanji Wallpaper Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            height: calc(100vh - 40px);
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .controls h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 24px;
+            line-height: 1.2;
+        }
+
+        .controls h1 small {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            font-weight: normal;
+            margin-top: 5px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-with-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-with-controls input {
+            flex: 1;
+        }
+
+        .font-size-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 5px;
+        }
+
+        .font-size-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .font-size-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .font-size-display {
+            min-width: 35px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .spacing-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .spacing-label {
+            font-size: 12px;
+            color: #888;
+            margin-left: 5px;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option.active {
+            border-color: #333;
+            transform: scale(1.1);
+        }
+
+        .preview {
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .canvas-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        #wallpaperCanvas {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 20px;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: transform 0.3s;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .style-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .style-option {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .style-option:hover {
+            border-color: #667eea;
+        }
+
+        .style-option.active {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .controls {
+                order: 2;
+            }
+            
+            .preview {
+                order: 1;
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <h1>Hanzi / Kanji Wallpaper<br><small>Generator</small></h1>
+            
+            <div class="input-group">
+                <label for="textInput">Hanzi / Kanji characters:</label>
+                <div class="input-with-controls">
+                    <input type="text" id="textInput" placeholder="爱" value="爱" maxlength="3">
+                    <div class="font-size-controls">
+                        <button class="font-size-btn" onclick="changeFontSize('primary', -1)">−</button>
+                        <span class="font-size-display" id="primarySizeDisplay">100%</span>
+                        <button class="font-size-btn" onclick="changeFontSize('primary', 1)">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="pinyinInput">Pinyin / Furigana:</label>
+                <div class="input-with-controls">
+                    <input type="text" id="pinyinInput" placeholder="ài" value="ài">
+                    <div class="font-size-controls">
+                        <button class="font-size-btn" onclick="changeFontSize('secondary', -1)">−</button>
+                        <span class="font-size-display" id="secondarySizeDisplay">100%</span>
+                        <button class="font-size-btn" onclick="changeFontSize('secondary', 1)">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Line Spacing:</label>
+                <div class="spacing-controls">
+                    <button class="font-size-btn" onclick="changeLineSpacing(-1)">−</button>
+                    <span class="font-size-display" id="spacingDisplay">100%</span>
+                    <button class="font-size-btn" onclick="changeLineSpacing(1)">+</button>
+                    <span class="spacing-label">spacing</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Vertical Positioning:</label>
+                <div class="spacing-controls">
+                    <button class="font-size-btn" onclick="changeVerticalPosition(-1)">−</button>
+                    <span class="font-size-display" id="verticalDisplay">50%</span>
+                    <button class="font-size-btn" onclick="changeVerticalPosition(1)">+</button>
+                    <span class="spacing-label">position</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>
+                    <input type="checkbox" id="decorativeCircles" onchange="generateWallpaper()"> 
+                    Decorative Circles
+                </label>
+            </div>
+
+
+
+            <div class="input-group">
+                <label>Primary Text Style:</label>
+                <div class="style-grid">
+                    <div class="style-option active" data-style="elegant" data-target="primary">Elegant</div>
+                    <div class="style-option" data-style="modern" data-target="primary">Modern</div>
+                    <div class="style-option" data-style="bold" data-target="primary">Bold</div>
+                    <div class="style-option" data-style="graffiti" data-target="primary">Graffiti</div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Secondary Text Style:</label>
+                <div class="style-grid">
+                    <div class="style-option active" data-style="elegant" data-target="secondary">Elegant</div>
+                    <div class="style-option" data-style="modern" data-target="secondary">Modern</div>
+                    <div class="style-option" data-style="bold" data-target="secondary">Bold</div>
+                    <div class="style-option" data-style="graffiti" data-target="secondary">Graffiti</div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Background Color:</label>
+                <div class="color-grid">
+                    <div class="color-option active" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)" data-bg="gradient1"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" data-bg="gradient2"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" data-bg="gradient3"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)" data-bg="gradient4"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%)" data-bg="gradient5"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)" data-bg="gradient6"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)" data-bg="gradient7"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)" data-bg="gradient8"></div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Text Color:</label>
+                <div class="color-grid">
+                    <div class="color-option active" style="background: #ffffff" data-text-color="#ffffff"></div>
+                    <div class="color-option" style="background: #000000" data-text-color="#000000"></div>
+                    <div class="color-option" style="background: #ff6b6b" data-text-color="#ff6b6b"></div>
+                    <div class="color-option" style="background: #4ecdc4" data-text-color="#4ecdc4"></div>
+                    <div class="color-option" style="background: #45b7d1" data-text-color="#45b7d1"></div>
+                    <div class="color-option" style="background: #f9ca24" data-text-color="#f9ca24"></div>
+                    <div class="color-option" style="background: #6c5ce7" data-text-color="#6c5ce7"></div>
+                    <div class="color-option" style="background: #a29bfe" data-text-color="#a29bfe"></div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="deviceSelect">Device Format:</label>
+                <select id="deviceSelect">
+                    <option value="phone">Phone (9:19.5)</option>
+                    <option value="iphone16" selected>iPhone 16</option>
+                    <option value="tablet">Tablet (4:3)</option>
+                    <option value="desktop">Desktop (16:9)</option>
+                </select>
+            </div>
+
+            <button class="download-btn" onclick="downloadWallpaper()">
+                💾 Download Wallpaper
+            </button>
+        </div>
+
+        <div class="preview">
+            <div class="canvas-container">
+                <canvas id="wallpaperCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('wallpaperCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let primaryStyle = 'elegant';
+        let secondaryStyle = 'elegant';
+        let currentBg = 'gradient1';
+        let currentTextColor = '#ffffff';
+        let primaryFontScale = 1.0; // 100%
+        let secondaryFontScale = 1.0;  // 100%
+        let lineSpacingScale = 1.0; // 100%
+        let verticalPosition = 0.5; // 50% from top (center)
+        
+        const backgrounds = {
+            gradient1: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            gradient2: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            gradient3: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            gradient4: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            gradient5: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+            gradient6: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+            gradient7: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+            gradient8: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)'
+        };
+
+        const gradientColors = {
+            gradient1: [['#667eea', '#764ba2']],
+            gradient2: [['#f093fb', '#f5576c']],
+            gradient3: [['#4facfe', '#00f2fe']],
+            gradient4: [['#43e97b', '#38f9d7']],
+            gradient5: [['#fa709a', '#fee140']],
+            gradient6: [['#a8edea', '#fed6e3']],
+            gradient7: [['#ff9a9e', '#fecfef']],
+            gradient8: [['#a18cd1', '#fbc2eb']]
+        };
+
+        function setCanvasSize() {
+            const deviceSelect = document.getElementById('deviceSelect');
+            const device = deviceSelect.value;
+            
+            let width, height;
+            
+            switch(device) {
+                case 'phone':
+                    width = 1080;
+                    height = 2340; // 19.5:9 ratio
+                    break;
+                case 'iphone16':
+                    width = 1179;
+                    height = 2556; // iPhone 16 actual resolution
+                    break;
+                case 'tablet':
+                    width = 1536;
+                    height = 2048; // 4:3 ratio
+                    break;
+                case 'desktop':
+                    width = 1920;
+                    height = 1080; // 16:9 ratio
+                    break;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            generateWallpaper();
+        }
+
+        function generateWallpaper() {
+            const primaryText = document.getElementById('textInput').value || '爱';
+            const secondaryText = document.getElementById('pinyinInput').value || 'ài';
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Create gradient background
+            const colors = gradientColors[currentBg][0];
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, colors[0]);
+            gradient.addColorStop(1, colors[1]);
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Settings for text characters
+            let primaryFontSize, primaryFontFamily, secondaryFontSize, secondaryFontFamily;
+            
+            let basePrimary, baseSecondary;
+            
+            // Set primary text settings based on primary style
+            basePrimary = Math.min(canvas.width, canvas.height) * 0.3; // Same size for all styles
+            
+            switch(primaryStyle) {
+                case 'modern':
+                    primaryFontFamily = 'SimHei, Microsoft YaHei, Arial, sans-serif';
+                    break;
+                case 'bold':
+                    primaryFontFamily = 'SimHei, Microsoft YaHei, Arial Black, sans-serif';
+                    break;
+                case 'elegant':
+                    primaryFontFamily = 'KaiTi, STKaiti, Georgia, serif';
+                    break;
+                case 'graffiti':
+                    primaryFontFamily = 'SimHei, Microsoft YaHei, Arial Black, sans-serif';
+                    break;
+            }
+            
+            // Set secondary text settings based on secondary style
+            baseSecondary = Math.min(canvas.width, canvas.height) * 0.07; // Same size for all styles
+            
+            switch(secondaryStyle) {
+                case 'modern':
+                    secondaryFontFamily = 'Arial, sans-serif';
+                    break;
+                case 'bold':
+                    secondaryFontFamily = 'Arial Black, sans-serif';
+                    break;
+                case 'elegant':
+                    secondaryFontFamily = 'Georgia, serif';
+                    break;
+                case 'graffiti':
+                    secondaryFontFamily = 'Arial Black, sans-serif';
+                    break;
+            }
+            
+            // Apply scaling
+            primaryFontSize = basePrimary * primaryFontScale;
+            secondaryFontSize = baseSecondary * secondaryFontScale;
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height * verticalPosition; // Adjustable vertical position
+            
+            // Add shadow for better readability
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = 20;
+            ctx.shadowOffsetX = 5;
+            ctx.shadowOffsetY = 5;
+            
+            // Calculate positions with adjustable spacing
+            const baseSpacing = primaryFontSize * 0.9; // base spacing
+            const actualSpacing = baseSpacing * lineSpacingScale; // apply scale
+            
+            const primaryY = centerY - (actualSpacing * 0.5);
+            
+            // Draw characters (top line)
+            ctx.font = `bold ${primaryFontSize}px ${primaryFontFamily}`;
+            ctx.fillStyle = currentTextColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            if (primaryStyle === 'graffiti') {
+                // Add outline for graffiti style
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = primaryFontSize * 0.015;
+                ctx.strokeText(primaryText, centerX, primaryY);
+            }
+            
+            ctx.fillText(primaryText, centerX, primaryY);
+            
+            // Draw secondary text
+            ctx.font = `${secondaryFontSize}px ${secondaryFontFamily}`;
+            ctx.fillStyle = currentTextColor;
+            ctx.globalAlpha = 0.85; // Make secondary text slightly more transparent
+            
+            const secondaryY = centerY + (actualSpacing * 0.5);
+            
+            if (secondaryStyle === 'graffiti') {
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = secondaryFontSize * 0.02;
+                ctx.strokeText(secondaryText, centerX, secondaryY);
+            }
+            
+            ctx.fillText(secondaryText, centerX, secondaryY);
+            
+            // Restore opacity
+            ctx.globalAlpha = 1;
+            
+            // Add decorative elements
+            const showDecorations = document.getElementById('decorativeCircles').checked;
+            if (showDecorations) {
+                addDecorativeCircles();
+            }
+        }
+        
+        function addElegantDecorations(primaryY, secondaryY, primaryFontSize, actualSpacing) {
+            const centerX = canvas.width / 2;
+            const lineLength = Math.min(canvas.width * 0.3, 200);
+            
+            ctx.strokeStyle = currentTextColor;
+            ctx.lineWidth = 3;
+            ctx.shadowBlur = 10;
+            ctx.globalAlpha = 0.6;
+            
+            // Line above primary text (adapts to font size)
+            const topLineOffset = primaryFontSize * 0.6;
+            ctx.beginPath();
+            ctx.moveTo(centerX - lineLength/2, primaryY - topLineOffset);
+            ctx.lineTo(centerX + lineLength/2, primaryY - topLineOffset);
+            ctx.stroke();
+            
+            // Line below secondary text (adapts to spacing)
+            const bottomLineOffset = Math.max(primaryFontSize * 0.15, actualSpacing * 0.2);
+            ctx.beginPath();
+            ctx.moveTo(centerX - lineLength/2, secondaryY + bottomLineOffset);
+            ctx.lineTo(centerX + lineLength/2, secondaryY + bottomLineOffset);
+            ctx.stroke();
+            
+            // Decorative dots
+            ctx.fillStyle = currentTextColor;
+            const dotRadius = Math.max(3, primaryFontSize * 0.02);
+            
+            // Left dots
+            ctx.beginPath();
+            ctx.arc(centerX - lineLength/2 - 20, primaryY - topLineOffset, dotRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(centerX - lineLength/2 - 20, secondaryY + bottomLineOffset, dotRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Right dots
+            ctx.beginPath();
+            ctx.arc(centerX + lineLength/2 + 20, primaryY - topLineOffset, dotRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(centerX + lineLength/2 + 20, secondaryY + bottomLineOffset, dotRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.globalAlpha = 1;
+        }
+        
+        function addDecorativeCircles() {
+            // Add geometric elements
+            ctx.fillStyle = currentTextColor;
+            ctx.globalAlpha = 0.1;
+            
+            // Circles
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.arc(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height,
+                    Math.random() * 100 + 50,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.fill();
+            }
+            
+            ctx.globalAlpha = 1;
+        }
+
+        function downloadWallpaper() {
+            const link = document.createElement('a');
+            link.download = 'wallpaper.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        function changeFontSize(type, direction) {
+            const step = 0.1; // 10% step change
+            const minScale = 0.3; // minimum 30%
+            const maxScale = 3.0; // maximum 300%
+            
+            if (type === 'primary') {
+                primaryFontScale += direction * step;
+                primaryFontScale = Math.max(minScale, Math.min(maxScale, primaryFontScale));
+                document.getElementById('primarySizeDisplay').textContent = Math.round(primaryFontScale * 100) + '%';
+            } else if (type === 'secondary') {
+                secondaryFontScale += direction * step;
+                secondaryFontScale = Math.max(minScale, Math.min(maxScale, secondaryFontScale));
+                document.getElementById('secondarySizeDisplay').textContent = Math.round(secondaryFontScale * 100) + '%';
+            }
+            
+            generateWallpaper();
+        }
+
+        function changeLineSpacing(direction) {
+            const step = 0.1; // 10% step change
+            const minScale = 0.2; // minimum 20% (very close)
+            const maxScale = 3.0; // maximum 300% (very far)
+            
+            lineSpacingScale += direction * step;
+            lineSpacingScale = Math.max(minScale, Math.min(maxScale, lineSpacingScale));
+            document.getElementById('spacingDisplay').textContent = Math.round(lineSpacingScale * 100) + '%';
+            
+            generateWallpaper();
+        }
+
+        function changeVerticalPosition(direction) {
+            const step = 0.05; // 5% step change for finer control
+            const minPosition = 0.1; // minimum 10% from top
+            const maxPosition = 0.9; // maximum 90% from top
+            
+            verticalPosition += direction * step;
+            verticalPosition = Math.max(minPosition, Math.min(maxPosition, verticalPosition));
+            document.getElementById('verticalDisplay').textContent = Math.round(verticalPosition * 100) + '%';
+            
+            generateWallpaper();
+        }
+
+        // Event handlers
+        document.getElementById('textInput').addEventListener('input', generateWallpaper);
+        document.getElementById('pinyinInput').addEventListener('input', generateWallpaper);
+        document.getElementById('deviceSelect').addEventListener('change', setCanvasSize);
+        // Event handlers for text styles
+        document.querySelectorAll('.style-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const target = option.dataset.target;
+                const style = option.dataset.style;
+                
+                // Remove active class from same target group
+                document.querySelectorAll(`[data-target="${target}"]`).forEach(o => o.classList.remove('active'));
+                option.classList.add('active');
+                
+                // Update the appropriate style variable
+                if (target === 'primary') {
+                    primaryStyle = style;
+                } else if (target === 'secondary') {
+                    secondaryStyle = style;
+                }
+                
+                generateWallpaper();
+            });
+        });
+
+        // Event handlers for background colors
+        document.querySelectorAll('[data-bg]').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('[data-bg]').forEach(o => o.classList.remove('active'));
+                option.classList.add('active');
+                currentBg = option.dataset.bg;
+                generateWallpaper();
+            });
+        });
+
+        // Event handlers for text colors
+        document.querySelectorAll('[data-text-color]').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('[data-text-color]').forEach(o => o.classList.remove('active'));
+                option.classList.add('active');
+                currentTextColor = option.dataset.textColor;
+                generateWallpaper();
+            });
+        });
+
+        // Initialization
+        setCanvasSize();
+    </script>
+</body>
+</html>
